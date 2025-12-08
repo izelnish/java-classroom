@@ -825,7 +825,10 @@
                 : { email: email, password: password };
 
             // Call Java Backend
-            fetch('http://localhost:8080' + endpoint, {
+            // Point to your Render Backend
+            const backendUrl = "https://java-classroom.onrender.com";
+
+            fetch(backendUrl + endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
