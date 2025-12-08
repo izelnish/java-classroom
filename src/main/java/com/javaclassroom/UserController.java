@@ -14,9 +14,27 @@ import java.util.Map;
 public class UserController {
 
     // Reusing our raw JDBC logic for simplicity
+    // Reusing our raw JDBC logic for simplicity
     private Connection getConnection() throws Exception {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/java_classroom", "root", "");
+
+        // Get from Environment (Render) or use Localhost default
+        String url = System.getenv("DB_URL");
+        if (url == null || url.isEmpty()) {
+            url = "jdbc:mysql://localhost:3306/java_classroom";
+        }
+
+        String user = System.getenv("DB_USER");
+        if (user == null || user.isEmpty()) {
+            user = "root";
+        }
+
+        String pass = System.getenv("DB_PASS");
+        if (pass == null) {
+            pass = "";
+        }
+
+        return DriverManager.getConnection(url, user, pass);
     }
 
     @PostMapping("/login")
