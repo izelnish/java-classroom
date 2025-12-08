@@ -1416,65 +1416,18 @@ public class DBConnect {
                     window.classList.remove('scale-95', 'opacity-0');
                     window.classList.add('scale-100', 'opacity-100');
                 }, 10);
-                document.getElementById('chat-input').focus();
             }
-            isChatOpen = !isChatOpen;
-        }
 
-        function handleChat(e) {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            if (!message) return;
-
-            // User Message
-            addMessage(message, 'user');
-            input.value = '';
-
-            // AI Bot Response
-            const btn = document.querySelector('#chat-window button[type="submit"]');
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = '...'; // Loading indicator
-            btn.disabled = true;
-
-            fetch('http://localhost:8080/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    addMessage(data.reply, 'bot');
-                    btn.innerHTML = originalIcon;
-                    btn.disabled = false;
-                })
-                .catch(error => {
-                    console.error("Chat error:", error);
-                    addMessage("Sorry, I can't reach the server right now.", 'bot');
-                    btn.innerHTML = originalIcon;
-                    btn.disabled = false;
-                });
-        }
-
-        function addMessage(text, type) {
-            const container = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-            div.className = `chat-bubble ${type}`;
-            div.textContent = text;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function getBotResponse(input) {
-            input = input.toLowerCase();
-            if (input.includes('hello') || input.includes('hi')) return "Hello student! Ready to learn Java?";
-            if (input.includes('variable')) return "Variables are containers for storing data values. In Java, we have int, String, double, etc.";
-            if (input.includes('loop')) return "Loops help you execute a block of code repeatedly. Java has for, while, and do-while loops.";
-            if (input.includes('class') || input.includes('object')) return "A Class is a blueprint, and an Object is an instance of that class. Think of Class as 'Car Blueprint' and Object as 'The actual red Ferrari'.";
-            if (input.includes('error') || input.includes('bug')) return "Debug tip: Check your semicolons ; and matching brackets {} first!";
-            if (input.includes('thank')) return "You're welcome! Happy coding!";
-            return "That's a great question about Java! I recommend checking the current video session for more context, or try rephrasing.";
-        }
+            function getBotResponse(input) {
+                input = input.toLowerCase();
+                if (input.includes('hello') || input.includes('hi')) return "Hello student! Ready to learn Java?";
+                if (input.includes('variable')) return "Variables are containers for storing data values. In Java, we have int, String, double, etc.";
+                if (input.includes('loop')) return "Loops help you execute a block of code repeatedly. Java has for, while, and do-while loops.";
+                if (input.includes('class') || input.includes('object')) return "A Class is a blueprint, and an Object is an instance of that class. Think of Class as 'Car Blueprint' and Object as 'The actual red Ferrari'.";
+                if (input.includes('error') || input.includes('bug')) return "Debug tip: Check your semicolons ; and matching brackets {} first!";
+                if (input.includes('thank')) return "You're welcome! Happy coding!";
+                return "That's a great question about Java! I recommend checking the current video session for more context, or try rephrasing.";
+            }
     </script>
 </body>
 
