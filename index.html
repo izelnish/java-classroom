@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Masterclass | Virtual Classroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9', // Sky 500
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-bubble {
+            position: relative;
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.user {
+            background-color: #0ea5e9;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.bot {
+            background-color: #f1f5f9;
+            color: #334155;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .dark .chat-bubble.bot {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-slate-800 dark:bg-dark-900 dark:text-slate-100 transition-colors duration-300">
+    <!-- Auth Screen -->
+    <div id="auth-screen"
+        class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-blue-100 dark:from-dark-900 dark:to-slate-800 p-4 transition-colors duration-300 fixed inset-0 z-[60]">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-white/50 dark:border-slate-700 relative">
+            <!-- Auth Header -->
+            <div
+                class="bg-gradient-to-r from-primary-600 to-primary-700 p-8 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/10 pattern-grid opacity-20"></div>
+                <div
+                    class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur mx-auto flex items-center justify-center text-3xl font-bold border border-white/30 mb-4 shadow-lg">
+                    J</div>
+                <h1 class="text-2xl font-bold tracking-tight">Java Masterclass</h1>
+                <p class="text-primary-100 text-sm mt-2 font-medium">Virtual Classroom Portal</p>
+            </div>
+
+            <!-- Auth Body -->
+            <div class="p-8">
+                <!-- Role Toggle -->
+                <div class="flex p-1 bg-slate-100 dark:bg-slate-700 rounded-xl mb-8">
+                    <button onclick="setRole('student')" id="btn-role-student"
+                        class="flex-1 py-2.5 text-sm font-semibold rounded-lg shadow-sm bg-white dark:bg-slate-600 text-primary-600 dark:text-white transition-all">Student</button>
+                    <button onclick="setRole('staff')" id="btn-role-staff"
+                        class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">Staff</button>
+                </div>
+
+                <!-- Form -->
+                <form onsubmit="handleAuth(event)" class="space-y-5">
+                    <div id="field-name" class="hidden space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Full Name</label>
+                        <input type="text" id="auth-name"
+                            class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white"
+                            placeholder="John Doe">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Email Address</label>
+                        <input type="email" id="auth-email" required
+                            class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white"
+                            placeholder="you@example.com">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+                        <input type="password" id="auth-password" required
+                            class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white"
+                            placeholder="••••••••">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/30 transition-all transform hover:-translate-y-0.5 active:scale-95">
+                        <span id="btn-action-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Toggle Mode -->
+                <div class="mt-6 text-center">
+                    <button onclick="toggleAuthMode()"
+                        class="text-sm text-slate-500 hover:text-primary-600 font-medium transition-colors">
+                        <span id="text-switch-hint">New here? Create an account</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Content (Hidden by default) -->
+    <div id="app-content" class="hidden">
+
+        <!-- Navigation -->
+        <nav class="fixed w-full z-50 glass-panel shadow-sm transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16 items-center">
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
+                            J</div>
+                        <span class="font-bold text-xl tracking-tight">Java<span
+                                class="text-primary-600">Class</span></span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="#curriculum" onclick="showCurriculum()"
+                            class="text-sm font-medium hover:text-primary-600 transition-colors">Curriculum</a>
+                        <a href="#" onclick="showDashboard()" id="nav-btn-students"
+                            class="hidden text-sm font-medium hover:text-primary-600 transition-colors">Students</a>
+                        <a href="#" onclick="showResources()" id="nav-btn-resources"
+                            class="text-sm font-medium hover:text-primary-600 transition-colors">Resources</a>
+                        <a href="#" onclick="showAssignments()" id="nav-btn-assignments"
+                            class="text-sm font-medium hover:text-primary-600 transition-colors">Assignments</a>
+                        <button onclick="toggleTheme()"
+                            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                            <!-- Sun Icon -->
+                            <svg id="sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                                </path>
+                            </svg>
+                            <!-- Moon Icon -->
+                            <svg id="moon-icon" class="w-5 h-5 block" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.354 24.132A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                                </path>
+                            </svg>
+                        </button>
+                        <a href="#start" id="nav-btn-start"
+                            class="px-5 py-2.5 rounded-full bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/30 transition-all transform hover:-translate-y-0.5">Start
+                            Learning</a>
+
+                        <!-- User Profile (Hidden by default) -->
+                        <div id="user-profile" class="hidden items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="text-right hidden lg:block">
+                                    <p id="profile-name"
+                                        class="text-sm font-bold text-slate-700 dark:text-slate-200 leading-none">User
+                                    </p>
+                                    <p id="profile-role" class="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                                        Student</p>
+                                </div>
+                                <div
+                                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-500 to-purple-600 p-0.5">
+                                    <div
+                                        class="w-full h-full rounded-full bg-white dark:bg-slate-800 flex items-center justify-center overflow-hidden">
+                                        <span id="profile-initials" class="font-bold text-primary-600">JD</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                                title="Logout">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header id="start" class="pt-32 pb-20 lg:pt-48 lg:pb-32 relative overflow-hidden">
+            <div class="absolute inset-0 z-0 opacity-30 dark:opacity-10">
+                <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary-100 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 w-1/2 h-full bg-gradient-to-r from-blue-100 to-transparent"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <h1
+                    class="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-primary-600 dark:from-white dark:to-primary-400">
+                    Master Java Programming
+                </h1>
+                <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-600 dark:text-slate-300">
+                    From "Hello World" to Enterprise Systems. A complete video curriculum with notes, assignments, and
+                    AI support.
+                </p>
+                <div class="mt-10 flex justify-center gap-4">
+                    <a href="#curriculum"
+                        class="px-8 py-3.5 rounded-full bg-primary-600 text-white font-semibold hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-500/20 transition-all transform hover:-translate-y-1">
+                        Start Curriculum
+                    </a>
+                    <button onclick="toggleChat()"
+                        class="px-8 py-3.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                        Ask AI Tutor
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Curriculum Section -->
+        <section id="curriculum" class="py-20 bg-white dark:bg-dark-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <div class="mb-12">
+                        <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Curriculum Journey</h2>
+                        <p class="mt-4 text-slate-600 dark:text-slate-400">Structured lessons to take you from beginner
+                            to
+                            pro.</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <!-- Sidebar List with Search -->
+                        <div class="order-2 lg:order-1 h-[600px] flex flex-col">
+                            <div class="mb-4">
+                                <div class="relative">
+                                    <input type="text" id="search-input" onkeyup="filterSessions()"
+                                        placeholder="Search topics..."
+                                        class="w-full pl-10 pr-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4" id="session-list">
+                                <!-- Dynamic content rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Video Player / Main Content Area -->
+                        <div class="lg:order-2 lg:col-span-2 space-y-6">
+                        </div>
+                        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4" id="session-list">
+                            <!-- Dynamic Session List -->
+                        </div>
+                    </div>
+
+                    <!-- Video Player / Main Content Area -->
+                    <div class="lg:order-2 lg:col-span-2 space-y-6">
+                        <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative group">
+                            <iframe id="main-video" class="w-full h-full"
+                                src="https://www.youtube.com/embed/eIrMbAQSU34" title="Java Tutorial" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl shadow-sm">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <h3 id="current-title" class="text-2xl font-bold text-slate-900 dark:text-white">
+                                        Introduction to Java</h3>
+                                    <p id="current-desc" class="text-slate-600 dark:text-slate-400 mt-1">Session 1 •
+                                        Basics & Setup</p>
+                                </div>
+                                <div id="session-header-actions" class="flex items-center gap-3">
+                                    <!-- Dynamic Buttons -->
+                                </div>
+                            </div>
+
+                            <!-- Tabs -->
+                            <div class="flex border-b border-slate-200 dark:border-slate-700 mb-6 gap-6">
+                                <button onclick="switchTab('notes')" id="tab-notes"
+                                    class="pb-2 border-b-2 border-primary-500 text-primary-600 font-semibold text-sm transition-colors">
+                                    Notes Preview
+                                </button>
+                                <button onclick="switchTab('assignment')" id="tab-assignment"
+                                    class="pb-2 border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium text-sm transition-colors">
+                                    Assignment
+                                </button>
+                            </div>
+
+                            <!-- Notes Tab -->
+                            <div id="content-notes" class="block animate-fade-in">
+                                <div id="notes-preview"
+                                    class="prose dark:prose-invert max-w-none h-64 overflow-y-auto custom-scrollbar p-6 bg-slate-50 dark:bg-slate-900 rounded-xl mb-4 text-sm border border-slate-100 dark:border-slate-700">
+                                    <!-- Dynamic Content -->
+                                </div>
+                                <button
+                                    class="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors shadow-lg shadow-primary-500/20">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4">
+                                        </path>
+                                    </svg>
+                                    Download Notes PDF
+                                </button>
+                            </div>
+
+                            <!-- Assignment Tab -->
+                            <div id="content-assignment" class="hidden animate-fade-in">
+                                <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto border border-slate-800">
+                                    <pre id="assignment-code" class="text-sm font-mono text-blue-300"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playlist Sidebar -->
+                    <div class="space-y-4 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Session Item 1 -->
+                        <div onclick="loadSession(0)"
+                            class="session-card group cursor-pointer p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 dark:hover:border-primary-500 transition-all hover:shadow-md ring-2 ring-primary-500">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 flex items-center justify-center font-bold text-sm shrink-0">
+                                    01</div>
+                                <div>
+                                    <h4
+                                        class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        Introduction to Java</h4>
+                                    <p class="text-xs text-slate-500 mt-1">15 mins • Syntax Basics</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session Item 2 -->
+                        <div onclick="loadSession(1)"
+                            class="session-card group cursor-pointer p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 dark:hover:border-primary-500 transition-all hover:shadow-md">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    02</div>
+                                <div>
+                                    <h4
+                                        class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        Variables & Data Types</h4>
+                                    <p class="text-xs text-slate-500 mt-1">22 mins • Primitives</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session Item 3 -->
+                        <div onclick="loadSession(2)"
+                            class="session-card group cursor-pointer p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 dark:hover:border-primary-500 transition-all hover:shadow-md">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    03</div>
+                                <div>
+                                    <h4
+                                        class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        Control Flow</h4>
+                                    <p class="text-xs text-slate-500 mt-1">30 mins • If/Else, Loops</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session Item 4 -->
+                        <div onclick="loadSession(3)"
+                            class="session-card group cursor-pointer p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 dark:hover:border-primary-500 transition-all hover:shadow-md">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    04</div>
+                                <div>
+                                    <h4
+                                        class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        Object Oriented Programming</h4>
+                                    <p class="text-xs text-slate-500 mt-1">45 mins • Classes & Objects</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Session Item 5 -->
+                        <div onclick="loadSession(4)"
+                            class="session-card group cursor-pointer p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-primary-500 dark:hover:border-primary-500 transition-all hover:shadow-md">
+                            <div class="flex gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center font-bold text-sm shrink-0">
+                                    05</div>
+                                <div>
+                                    <h4
+                                        class="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
+                                        Data Structures</h4>
+                                    <p class="text-xs text-slate-500 mt-1">40 mins • Lists & Maps</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Staff Dashboard (Hidden by default) -->
+        <section id="staff-dashboard" class="hidden py-20 bg-white dark:bg-dark-800 min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center mb-10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Student Progress</h2>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Monitor class performance and individual
+                            stats.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="renderStudentList()"
+                            class="p-2 text-slate-500 hover:text-primary-600 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Student List Table -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <table class="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+                        <thead
+                            class="bg-slate-50 dark:bg-slate-800 text-xs uppercase font-semibold text-slate-500 dark:text-slate-300">
+                            <tr>
+                                <th class="px-6 py-4">Student</th>
+                                <th class="px-6 py-4">Enrolled</th>
+                                <th class="px-6 py-4">Progress</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-list-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section (Hidden by default) -->
+        <section id="resources" class="hidden py-20 bg-white dark:bg-dark-800 min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Learning Resources</h2>
+                    <p class="mt-4 text-slate-600 dark:text-slate-400">Curated tools and documentation to help you
+                        succeed.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Category 1 -->
+                    <div
+                        class="p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group">
+                        <div
+                            class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Documentation</h3>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li><a href="https://docs.oracle.com/en/java/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Oracle Java Docs <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://dev.java/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Dev.java <svg class="w-3 h-3"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://www.w3schools.com/java/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">W3Schools Java <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div
+                        class="p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group">
+                        <div
+                            class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Development Tools</h3>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li><a href="https://www.jetbrains.com/idea/download/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">IntelliJ IDEA <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://code.visualstudio.com/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">VS Code <svg class="w-3 h-3"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://www.eclipse.org/downloads/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Eclipse IDE <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div
+                        class="p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-lg transition-all group">
+                        <div
+                            class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Community</h3>
+                        <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                            <li><a href="https://stackoverflow.com/questions/tagged/java" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Stack Overflow <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://www.reddit.com/r/java/" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Reddit r/java <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                            <li><a href="https://discord.gg/java" target="_blank"
+                                    class="hover:text-primary-600 flex items-center gap-2">Java Discord <svg
+                                        class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14">
+                                        </path>
+                                    </svg></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assignments Page -->
+        <section id="assignments-page" class="hidden py-20 bg-white dark:bg-dark-800 min-h-screen">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Coding Assignments</h2>
+                    <p class="mt-4 text-slate-600 dark:text-slate-400">Practice what you've learned. Complete
+                        assignments to master Java.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Assignment List -->
+                    <div class="lg:col-span-1 h-[600px] overflow-y-auto custom-scrollbar space-y-4"
+                        id="assignment-list">
+                        <!-- Dynamic List -->
+                    </div>
+
+                    <!-- Assignment Editor/View -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div id="assignment-detail-empty"
+                            class="h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 p-12 text-center text-slate-500">
+                            <svg class="w-16 h-16 mb-4 text-slate-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                            <p class="text-lg font-medium">Select an assignment to start coding</p>
+                        </div>
+
+                        <div id="assignment-detail-view" class="hidden space-y-6">
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+                                <div class="flex justify-between items-start mb-6">
+                                    <div>
+                                        <span
+                                            class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold mb-2 tracking-wide uppercase">Assignment</span>
+                                        <h3 id="assign-view-title"
+                                            class="text-2xl font-bold text-slate-900 dark:text-white"></h3>
+                                        <p id="assign-view-desc" class="text-slate-600 dark:text-slate-400 mt-1"></p>
+                                    </div>
+                                    <button id="btn-mark-assign-done" onclick="toggleAssignmentDone()"
+                                        class="flex items-center gap-2 px-6 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-colors">
+                                        Mark as Done
+                                    </button>
+                                </div>
+
+                                <div class="bg-slate-900 rounded-xl p-6 overflow-x-auto shadow-inner">
+                                    <pre id="assign-view-code"
+                                        class="text-sm font-mono text-blue-300 whitespace-pre-wrap"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Student Detail Modal -->
+        <div id="student-modal"
+            class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[80vh] flex flex-col">
+                <div
+                    class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold"
+                            id="modal-initials"></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900 dark:text-white" id="modal-name">Student Name
+                            </h3>
+                            <p class="text-xs text-slate-500" id="modal-email">student@example.com</p>
+                        </div>
+                    </div>
+                    <button onclick="closeModal()"
+                        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto flex-1">
+                    <h4 class="font-semibold text-sm uppercase text-slate-500 mb-4">Course Progress</h4>
+                    <div class="space-y-4" id="modal-progress-list">
+                        <!-- Progress Items injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Chatbot -->
+        <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+            <!-- Chat Window -->
+            <div id="chat-window"
+                class="hidden w-80 md:w-96 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl ring-1 ring-slate-900/5 mb-4 overflow-hidden transition-all transform origin-bottom-right scale-95 opacity-0">
+                <!-- Chat Header -->
+                <div
+                    class="bg-gradient-to-r from-primary-600 to-primary-700 p-4 flex justify-between items-center text-white">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                        <span class="font-semibold">Java Tutor AI</span>
+                    </div>
+                    <button onclick="toggleChat()" class="hover:bg-white/20 rounded-full p-1 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Messages Area -->
+                <div id="chat-messages" class="h-80 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-900/50 flex flex-col">
+                    <div class="chat-bubble bot">
+                        Hello! I'm your dedicated Java Tutor. Stuck on a concept or code? Ask me anything! 👩‍💻
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+                    <form onsubmit="handleChat(event)" class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Type your doubt..."
+                            class="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <button type="submit"
+                            class="p-2 bg-primary-600 hover:bg-primary-700 text-white rounded-full transition-colors flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Toggle Button -->
+            <button onclick="toggleChat()" id="chat-toggle-btn"
+                class="w-14 h-14 bg-gradient-to-r from-primary-500 to-blue-600 hover:from-primary-600 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-primary-500/40 transition-all transform hover:scale-105 flex items-center justify-center">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+
+    </div> <!-- End App Content -->
+
+    <script>
+        // Auth Logic
+        let currentRole = 'student';
+        let isSignUp = false;
+
+        function setRole(role) {
+            currentRole = role;
+            // Update UI
+            const btnStudent = document.getElementById('btn-role-student');
+            const btnStaff = document.getElementById('btn-role-staff');
+
+            if (role === 'student') {
+                btnStudent.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg shadow-sm bg-white dark:bg-slate-600 text-primary-600 dark:text-white transition-all";
+                btnStaff.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all";
+            } else {
+                btnStaff.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg shadow-sm bg-white dark:bg-slate-600 text-primary-600 dark:text-white transition-all";
+                btnStudent.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all";
+            }
+        }
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            const nameField = document.getElementById('field-name');
+            const btnText = document.getElementById('btn-action-text');
+            const hintText = document.getElementById('text-switch-hint');
+
+            if (isSignUp) {
+                nameField.classList.remove('hidden');
+                btnText.textContent = "Create Account";
+                hintText.textContent = "Already have an account? Sign In";
+            } else {
+                nameField.classList.add('hidden');
+                btnText.textContent = "Sign In";
+                hintText.textContent = "New here? Create an account";
+            }
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const name = document.getElementById('auth-name').value || (isSignUp ? "New Student" : "Java Student");
+
+            const password = document.getElementById('auth-password').value;
+
+            // UI Loading State
+            const btnText = document.getElementById('btn-action-text');
+            const originalText = btnText.textContent;
+            btnText.textContent = "Connecting...";
+
+            const endpoint = isSignUp ? '/api/signup' : '/api/login';
+            const payload = isSignUp
+                ? { email: email, password: password, name: name, role: currentRole }
+                : { email: email, password: password };
+
+            // Call Java Backend
+            fetch('http://localhost:8080' + endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Success!
+                        const authScreen = document.getElementById('auth-screen');
+                        const appContent = document.getElementById('app-content');
+
+                        authScreen.classList.add('opacity-0', 'pointer-events-none');
+                        updateProfile(data.name || name, data.role || currentRole);
+
+                        setTimeout(() => {
+                            authScreen.classList.add('hidden');
+                            appContent.classList.remove('hidden');
+                            if ((data.role && data.role === 'staff') || currentRole === 'staff') {
+                                setupStaffView();
+                            }
+                        }, 300);
+                    } else {
+                        alert("Login Failed: " + data.message);
+                        btnText.textContent = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    // Fallback for Demo if backend is offline
+                    if (confirm("Backend not reachable. Run in Demo Mode?")) {
+                        const authScreen = document.getElementById('auth-screen');
+                        const appContent = document.getElementById('app-content');
+                        authScreen.classList.add('opacity-0', 'pointer-events-none');
+                        updateProfile(name, currentRole);
+                        setTimeout(() => {
+                            authScreen.classList.add('hidden');
+                            appContent.classList.remove('hidden');
+                            if (currentRole === 'staff') setupStaffView();
+                        }, 300);
+                    } else {
+                        btnText.textContent = originalText;
+                    }
+                });
+        }
+
+        function updateProfile(name, role) {
+            document.getElementById('nav-btn-start').classList.add('hidden');
+            const profile = document.getElementById('user-profile');
+            profile.classList.remove('hidden');
+            profile.classList.add('flex');
+
+            document.getElementById('profile-name').textContent = name;
+            document.getElementById('profile-role').textContent = role;
+            document.getElementById('profile-initials').textContent = name.substring(0, 2).toUpperCase();
+        }
+
+        function logout() {
+            // Reset State
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-name').value = '';
+
+            // UI Transitions
+            const authScreen = document.getElementById('auth-screen');
+            const appContent = document.getElementById('app-content');
+
+            authScreen.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            appContent.classList.add('hidden');
+
+            // Reset Profile UI
+            document.getElementById('nav-btn-start').classList.remove('hidden');
+            const profile = document.getElementById('user-profile');
+            profile.classList.add('hidden');
+            profile.classList.remove('flex');
+
+            // Reset Staff Specifics if any
+            const navBrand = document.querySelector('nav .text-xl');
+            const badge = navBrand.querySelector('span.px-2');
+            if (badge && badge.textContent === "STAFF") badge.remove();
+
+            // Hide dashboard if open
+            showCurriculum();
+            document.getElementById('nav-btn-students').classList.add('hidden');
+            document.getElementById('resources').classList.add('hidden'); // Reset to default view
+            document.getElementById('nav-btn-students').classList.add('hidden');
+
+            // Remove mock edit buttons
+            document.querySelectorAll('.session-card button.absolute').forEach(btn => btn.remove());
+        }
+
+        function setupStaffView() {
+            // Add Staff Indicator
+            const navBrand = document.querySelector('nav .text-xl');
+            const badge = document.createElement('span');
+            badge.className = "ml-2 px-2 py-0.5 rounded textxs bg-purple-100 text-purple-600 border border-purple-200 align-middle";
+            badge.textContent = "STAFF";
+            navBrand.appendChild(badge);
+
+            // Show Students Link
+            document.getElementById('nav-btn-students').classList.remove('hidden');
+
+            // Add Edit Buttons to sessions (Mock)
+            document.querySelectorAll('.session-card').forEach(card => {
+                const editBtn = document.createElement('button');
+                editBtn.className = "absolute top-2 right-2 p-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-500";
+                editBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>';
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    alert("Staff Mode: Edit Session content functionality would open here.");
+                };
+                card.classList.add('relative');
+                card.appendChild(editBtn);
+            });
+        }
+
+        // Data Store
+        const sessions = [
+            {
+                title: "Introduction to Java",
+                desc: "Session 1 • Basics & Setup",
+                video: "https://www.youtube.com/embed/xk4_1vDrzzo", // Bro Code: Java 101
+                assignment: `// Task: Write a program to print "Hello, Java!"
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, Java!");
+    }
+}`,
+                notesHtml: `...`, // Keep existing content
+                isCompleted: false,
+                isAssignmentDone: false
+            },
+            {
+                title: "Variables & Data Types",
+                desc: "Session 2 • Primitives",
+                video: "https://www.youtube.com/embed/xvFZjo5PgG0", // Bro Code: Variables
+                assignment: `// Task: Create variables for name, age, and height
+public class Variables {
+    public static void main(String[] args) {
+        String name = "Alice";
+        int age = 20;
+        double height = 5.6;
+        // Print them out
+    }
+}`,
+                notesHtml: `
+                    <h4 class="font-bold mb-2">1. Primitive Data Types</h4>
+                    <p class="mb-4">Java has 8 primitive data types:</p>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>byte, short, int, long</strong>: Integers</li>
+                        <li><strong>float, double</strong>: Decimals</li>
+                        <li><strong>char</strong>: Single character</li>
+                        <li><strong>boolean</strong>: True/False</li>
+                    </ul>
+                    <h4 class="font-bold mb-2">2. Variables</h4>
+                    <p>A variable is a container which holds the value while the Java program is executed.</p>
+                `
+            },
+            {
+                title: "Control Flow Statements",
+                desc: "Session 3 • If/Else, Loops",
+                video: "https://www.youtube.com/embed/r59xYe3Vyks", // Bro Code: If statements
+                assignment: `// Task: Check if a number is positive or negative
+public class CheckNumber {
+    public static void main(String[] args) {
+        int number = -5;
+        // Write if/else logic here
+    }
+}`,
+                notesHtml: `
+                    <h4 class="font-bold mb-2">1. Decision Making</h4>
+                    <p class="mb-4"><strong>If-Else</strong> statements allow your program to make decisions based on conditions.</p>
+                    <h4 class="font-bold mb-2">2. Loops</h4>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>For Loop</strong>: When you know how many times to iterate.</li>
+                        <li><strong>While Loop</strong>: When number of iterations is not known.</li>
+                        <li><strong>Do-While Loop</strong>: Executes at least once.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Object Oriented Programming",
+                desc: "Session 4 • Classes & Objects",
+                video: "https://www.youtube.com/embed/s9rQe76c12U", // Bro Code: OOP
+                assignment: `// Task: Create a 'Car' class with a 'drive' method
+class Car {
+    void drive() {
+        System.out.println("Vroom!");
+    }
+}
+// Instantiate in main`,
+                notesHtml: `
+                    <h4 class="font-bold mb-2">1. Classes & Objects</h4>
+                    <p class="mb-4">A class is a blueprint, an object is a specific instance of that class.</p>
+                    <h4 class="font-bold mb-2">2. Four Pillars of OOP</h4>
+                    <ul class="list-disc pl-5 mb-4 space-y-1">
+                        <li><strong>Encapsulation</strong>: Wrapping data and methods together.</li>
+                        <li><strong>Inheritance</strong>: Child class acquires properties of Parent.</li>
+                        <li><strong>Polymorphism</strong>: One task in many ways.</li>
+                        <li><strong>Abstraction</strong>: Hiding internal details.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Data Structures",
+                desc: "Session 5 • Lists & Maps",
+                video: "https://www.youtube.com/embed/CZp-7lAdoYc", // Bro Code: ArrayList
+                assignment: `// Task: Create an ArrayList of fruits
+import java.util.ArrayList;
+public class Fruits {
+    public static void main(String[] args) {
+        ArrayList<String> fruits = new ArrayList<>();
+        fruits.add("Apple");
+        // Print the list
+    }
+}`,
+                notesHtml: `
+                    <h4 class="font-bold mb-2">1. Arrays vs ArrayList</h4>
+                    <p class="mb-4">Arrays have fixed size. ArrayLists act as dynamic arrays.</p>
+                    <h4 class="font-bold mb-2">2. HashMaps</h4>
+                    <p>Store data in Key-Value pairs. Keys must be unique.</p>
+                    <pre class="bg-gray-100 dark:bg-slate-800 p-2 rounded mt-2 text-xs">HashMap<String, Integer> map = new HashMap<>();</pre>
+                `
+            },
+            {
+                title: "Database Setup (XAMPP)",
+                desc: "Session 6 • MySQL Environment",
+                video: "https://www.youtube.com/embed/KdbPqX89X9Q", // JDBC using IntelliJ
+                assignment: `// Task: Connect to MySQL Database
+import java.sql.*;
+public class DBConnect {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/test_db";
+        String user = "root";
+        String pass = "";
+        // Implement connection logic
+    }
+}`,
+                notesHtml: `
+                    <h4 class="font-bold mb-2">1. What is XAMPP?</h4>
+                    <p class="mb-4">XAMPP is an open-source web server solution stack package including Apache HTTP Server, MariaDB database, and interpreters for scripts written in PHP and Perl.</p>
+                    
+                    <h4 class="font-bold mb-2">2. Installation Steps</h4>
+                    <ul class="list-decimal pl-5 mb-4 space-y-1">
+                        <li>Download XAMPP from <a href="https://www.apachefriends.org/" class="text-primary-600 hover:underline" target="_blank">apachefriends.org</a>.</li>
+                        <li>Run the installer and select components (MySQL is required for Java DB apps).</li>
+                        <li>Complete the installation wizard.</li>
+                    </ul>
+
+                    <h4 class="font-bold mb-2">3. Connecting Java to MySQL</h4>
+                    <p>You will need the <code>mysql-connector-java</code> JDBC driver to connect your Java application to the XAMPP MySQL database.</p>
+                `,
+                isCompleted: false,
+                isAssignmentDone: false
+            }
+        ];
+
+        // Mock Students Data
+        const students = [
+            { id: 1, name: "Alice Johnson", email: "alice@example.com", enrolled: "Dec 01, 2023", progress: 80, completed: [0, 1, 2, 3] },
+            { id: 2, name: "Bob Smith", email: "bob@example.com", enrolled: "Dec 03, 2023", progress: 40, completed: [0, 1] },
+            { id: 3, name: "Charlie Brown", email: "charlie@example.com", enrolled: "Dec 05, 2023", progress: 20, completed: [0] },
+            { id: 4, name: "Diana Prince", email: "diana@test.com", enrolled: "Dec 02, 2023", progress: 100, completed: [0, 1, 2, 3, 4] },
+            { id: 5, name: "Evan Wright", email: "evan@test.com", enrolled: "Dec 06, 2023", progress: 0, completed: [] }
+        ];
+
+        // Dashboard Logic
+        function showDashboard() {
+            document.getElementById('curriculum').classList.add('hidden');
+            document.getElementById('staff-dashboard').classList.remove('hidden');
+            document.getElementById('resources').classList.add('hidden');
+            document.getElementById('assignments-page').classList.add('hidden');
+            document.getElementById('start').classList.add('hidden');
+            renderStudentList();
+            setActiveNav('nav-btn-students');
+        }
+
+        function showCurriculum() {
+            document.getElementById('curriculum').classList.remove('hidden');
+            document.getElementById('staff-dashboard').classList.add('hidden');
+            document.getElementById('resources').classList.add('hidden');
+            document.getElementById('assignments-page').classList.add('hidden');
+            document.getElementById('start').classList.remove('hidden');
+            setActiveNav('curriculum');
+        }
+
+        function showResources() {
+            document.getElementById('curriculum').classList.add('hidden');
+            document.getElementById('staff-dashboard').classList.add('hidden');
+            document.getElementById('resources').classList.remove('hidden');
+            document.getElementById('assignments-page').classList.add('hidden');
+            document.getElementById('start').classList.add('hidden');
+            setActiveNav('nav-btn-resources');
+        }
+
+        function showAssignments() {
+            document.getElementById('curriculum').classList.add('hidden');
+            document.getElementById('staff-dashboard').classList.add('hidden');
+            document.getElementById('resources').classList.add('hidden');
+            document.getElementById('start').classList.add('hidden');
+            document.getElementById('assignments-page').classList.remove('hidden');
+            setActiveNav('nav-btn-assignments');
+            renderAssignmentList();
+        }
+
+        let currentAssignmentIndex = null;
+
+        function renderAssignmentList() {
+            const list = document.getElementById('assignment-list');
+            list.innerHTML = sessions.map((s, i) => `
+                <div onclick="loadAssignment(${i})" 
+                     class="p-4 bg-white dark:bg-slate-900 rounded-xl border ${currentAssignmentIndex === i ? 'border-primary-500 ring-1 ring-primary-500' : 'border-slate-200 dark:border-slate-700'} cursor-pointer hover:border-primary-500 transition-all group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg ${s.isAssignmentDone ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'} flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                ${s.isAssignmentDone
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>'}
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-900 dark:text-white text-sm ${s.isAssignmentDone ? 'text-green-700' : ''}">${s.title}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5 ${s.isAssignmentDone ? 'text-green-600' : ''}">${s.isAssignmentDone ? 'Completed' : 'Pending'}</p>
+                        </div>
+                    </div>
+                </div>
+             `).join('');
+        }
+
+        function loadAssignment(index) {
+            currentAssignmentIndex = index;
+            const session = sessions[index];
+
+            document.getElementById('assignment-detail-empty').classList.add('hidden');
+            const view = document.getElementById('assignment-detail-view');
+            view.classList.remove('hidden');
+
+            document.getElementById('assign-view-title').textContent = session.title;
+            document.getElementById('assign-view-desc').textContent = session.desc;
+            document.getElementById('assign-view-code').textContent = session.assignment;
+
+            renderAssignmentButton(session.isAssignmentDone);
+            renderAssignmentList(); // Re-render to highlight selection
+        }
+
+        function renderAssignmentButton(isDone) {
+            const btn = document.getElementById('btn-mark-assign-done');
+            if (isDone) {
+                btn.className = "flex items-center gap-2 px-6 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-200 transition-colors";
+                btn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Marked Done
+                `;
+            } else {
+                btn.className = "flex items-center gap-2 px-6 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-colors";
+                btn.textContent = "Mark as Done";
+            }
+        }
+
+        function toggleAssignmentDone() {
+            if (currentAssignmentIndex !== null) {
+                sessions[currentAssignmentIndex].isAssignmentDone = !sessions[currentAssignmentIndex].isAssignmentDone;
+                renderAssignmentButton(sessions[currentAssignmentIndex].isAssignmentDone);
+                renderAssignmentList();
+            }
+        }
+
+        function setActiveNav(id) {
+            // Helper to style active nav link if we wanted to add active state styles
+            // For now just ensuring functionality
+        }
+
+        function renderStudentList() {
+            const tbody = document.getElementById('student-list-body');
+            tbody.innerHTML = students.map(s => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onclick="openStudentModal(${s.id})">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-300">
+                                ${s.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="font-medium text-slate-900 dark:text-white">${s.name}</p>
+                                <p class="text-xs text-slate-500">${s.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">${s.enrolled}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2 w-24">
+                                <div class="bg-primary-500 h-2 rounded-full" style="width: ${s.progress}%"></div>
+                            </div>
+                            <span class="text-xs font-medium">${s.progress}%</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">View Details</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openStudentModal(id) {
+            const student = students.find(s => s.id === id);
+            if (!student) return;
+
+            document.getElementById('modal-name').textContent = student.name;
+            document.getElementById('modal-email').textContent = student.email;
+            document.getElementById('modal-initials').textContent = student.name.substring(0, 2).toUpperCase();
+
+            const list = document.getElementById('modal-progress-list');
+            list.innerHTML = sessions.map((fs, idx) => {
+                const isDone = student.completed.includes(idx);
+                return `
+                    <div class="flex items-center gap-4 p-3 rounded-xl border ${isDone ? 'border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-900/30' : 'border-slate-100 dark:border-slate-700'}">
+                        <div class="flex-shrink-0">
+                             ${isDone
+                        ? '<div class="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>'
+                        : '<div class="w-6 h-6 rounded-full border-2 border-slate-300 dark:border-slate-600"></div>'}
+                        </div>
+                        <div class="flex-1">
+                            <h5 class="text-sm font-semibold text-slate-900 dark:text-white">${fs.title}</h5>
+                            <p class="text-xs text-slate-500">${fs.desc}</p>
+                        </div>
+                        ${isDone ? '<span class="text-xs font-bold text-green-600 dark:text-green-400">Completed</span>' : '<span class="text-xs text-slate-400">Pending</span>'}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('student-modal').classList.add('hidden');
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
+            document.getElementById('moon-icon').classList.toggle('hidden', isDark);
+        }
+
+        // Session Loader
+        function loadSession(index) {
+            const session = sessions[index];
+            document.getElementById('main-video').src = session.video;
+            document.getElementById('current-title').textContent = session.title;
+            document.getElementById('current-desc').textContent = session.desc;
+            document.getElementById('assignment-code').textContent = session.assignment;
+            document.getElementById('notes-preview').innerHTML = session.notesHtml;
+
+            // Highlight active card
+            document.querySelectorAll('.session-card').forEach((card, i) => {
+                if (i === index) {
+                    card.classList.add('ring-2', 'ring-primary-500');
+                    card.querySelector('.rounded-full').classList.add('bg-primary-100', 'text-primary-600');
+                    card.querySelector('.rounded-full').classList.remove('bg-slate-100', 'text-slate-600');
+                } else {
+                    card.classList.remove('ring-2', 'ring-primary-500');
+                    card.querySelector('.rounded-full').classList.remove('bg-primary-100', 'text-primary-600');
+                    card.querySelector('.rounded-full').classList.add('bg-slate-100', 'text-slate-600');
+                }
+            });
+
+            // Update Mark Complete Button
+            const actionContainer = document.querySelector('#current-desc').parentNode.nextElementSibling;
+            // We need to inject the button dynamically or replace the 'Download Notes' area.
+            // Let's replace the whole header action area to include Mark Complete.
+
+            // Re-render the header actions
+            const headerActions = document.getElementById('session-header-actions');
+            if (headerActions) {
+                headerActions.innerHTML = `
+                    <button onclick="markComplete(${index})" 
+                        class="flex items-center gap-2 px-4 py-2 ${session.isCompleted ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200'} rounded-lg text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        ${session.isCompleted ? 'Completed' : 'Mark Complete'}
+                    </button>
+                    <button class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download
+                    </button>
+                 `;
+            }
+
+            // Default to Notes tab
+            switchTab('notes');
+        }
+
+        function markComplete(index) {
+            sessions[index].isCompleted = !sessions[index].isCompleted;
+            renderSessionList();
+            loadSession(index);
+        }
+
+        function switchTab(tab) {
+            const notesTab = document.getElementById('tab-notes');
+            const assignTab = document.getElementById('tab-assignment');
+            const notesContent = document.getElementById('content-notes');
+            const assignContent = document.getElementById('content-assignment');
+
+            if (tab === 'notes') {
+                notesTab.classList.add('border-primary-500', 'text-primary-600');
+                notesTab.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+
+                assignTab.classList.remove('border-primary-500', 'text-primary-600');
+                assignTab.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+
+                notesContent.classList.remove('hidden');
+                assignContent.classList.add('hidden');
+            } else {
+                assignTab.classList.add('border-primary-500', 'text-primary-600');
+                assignTab.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+
+                notesTab.classList.remove('border-primary-500', 'text-primary-600');
+                notesTab.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+
+                assignContent.classList.remove('hidden');
+                notesContent.classList.add('hidden');
+            }
+        }
+
+        // Initialize Filter Logic
+        function filterSessions() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.session-card');
+
+            cards.forEach((card, index) => {
+                const title = sessions[index].title.toLowerCase();
+                const desc = sessions[index].desc.toLowerCase();
+                if (title.includes(query) || desc.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function renderSessionList() {
+            const list = document.getElementById('session-list');
+            list.innerHTML = sessions.map((s, i) => `
+                <div class="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 cursor-pointer hover:border-primary-500 transition-colors session-card group relative"
+                    onclick="loadSession(${i})">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full ${s.isCompleted ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'} flex items-center justify-center font-bold text-lg group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors">
+                            ${s.isCompleted ? '✓' : i + 1}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors ${s.isCompleted ? 'text-green-700 dark:text-green-400' : ''}">
+                                ${s.title}
+                            </h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">${s.desc}</p>
+                        </div>
+                        <div class="flex-shrink-0 self-center">
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-primary-500" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Call initial render
+        renderSessionList();
+        let isChatOpen = false;
+        function toggleChat() {
+            const window = document.getElementById('chat-window');
+            if (isChatOpen) {
+                window.classList.add('scale-95', 'opacity-0');
+                window.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => window.classList.add('hidden'), 200);
+            } else {
+                window.classList.remove('hidden');
+                // Small delay to allow display:block to apply before transition
+                setTimeout(() => {
+                    window.classList.remove('scale-95', 'opacity-0');
+                    window.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                document.getElementById('chat-input').focus();
+            }
+            isChatOpen = !isChatOpen;
+        }
+
+        function handleChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // User Message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // AI Bot Response
+            const btn = document.querySelector('#chat-window button[type="submit"]');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '...'; // Loading indicator
+            btn.disabled = true;
+
+            fetch('http://localhost:8080/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage(data.reply, 'bot');
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                })
+                .catch(error => {
+                    console.error("Chat error:", error);
+                    addMessage("Sorry, I can't reach the server right now.", 'bot');
+                    btn.innerHTML = originalIcon;
+                    btn.disabled = false;
+                });
+        }
+
+        function addMessage(text, type) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${type}`;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function getBotResponse(input) {
+            input = input.toLowerCase();
+            if (input.includes('hello') || input.includes('hi')) return "Hello student! Ready to learn Java?";
+            if (input.includes('variable')) return "Variables are containers for storing data values. In Java, we have int, String, double, etc.";
+            if (input.includes('loop')) return "Loops help you execute a block of code repeatedly. Java has for, while, and do-while loops.";
+            if (input.includes('class') || input.includes('object')) return "A Class is a blueprint, and an Object is an instance of that class. Think of Class as 'Car Blueprint' and Object as 'The actual red Ferrari'.";
+            if (input.includes('error') || input.includes('bug')) return "Debug tip: Check your semicolons ; and matching brackets {} first!";
+            if (input.includes('thank')) return "You're welcome! Happy coding!";
+            return "That's a great question about Java! I recommend checking the current video session for more context, or try rephrasing.";
+        }
+    </script>
+</body>
+
+</html>
