@@ -185,13 +185,13 @@
                                 class="text-primary-600">Class</span></span>
                     </div>
                     <div class="hidden md:flex items-center space-x-8">
-                        <a href="#curriculum" onclick="showCurriculum()"
+                        <a href="#" onclick="showCurriculum(); return false;" id="nav-btn-curriculum"
                             class="text-sm font-medium hover:text-primary-600 transition-colors">Curriculum</a>
-                        <a href="#" onclick="showDashboard()" id="nav-btn-students"
+                        <a href="#" onclick="showDashboard(); return false;" id="nav-btn-students"
                             class="hidden text-sm font-medium hover:text-primary-600 transition-colors">Students</a>
-                        <a href="#" onclick="showResources()" id="nav-btn-resources"
+                        <a href="#" onclick="showResources(); return false;" id="nav-btn-resources"
                             class="text-sm font-medium hover:text-primary-600 transition-colors">Resources</a>
-                        <a href="#" onclick="showAssignments()" id="nav-btn-assignments"
+                        <a href="#" onclick="showAssignments(); return false;" id="nav-btn-assignments"
                             class="text-sm font-medium hover:text-primary-600 transition-colors">Assignments</a>
                         <button onclick="toggleTheme()"
                             class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
@@ -210,9 +210,9 @@
                                 </path>
                             </svg>
                         </button>
-                        <a href="#start" id="nav-btn-start"
+                        <button onclick="showCurriculum()" id="nav-btn-start"
                             class="px-5 py-2.5 rounded-full bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-500/30 transition-all transform hover:-translate-y-0.5">Start
-                            Learning</a>
+                            Learning</button>
 
                         <!-- User Profile (Hidden by default) -->
                         <div id="user-profile" class="hidden items-center gap-4">
@@ -819,14 +819,14 @@
             const originalText = btnText.textContent;
             btnText.textContent = "Connecting...";
 
-            const endpoint = isSignUp ? '/api/signup' : '/api/login';
+            const endpoint = isSignUp ? 'register.php' : 'login.php';
             const payload = isSignUp
                 ? { email: email, password: password, name: name, role: currentRole }
                 : { email: email, password: password };
 
-            // Call Java Backend
-            // Point to your Render Backend
-            const backendUrl = "https://java-classroom.onrender.com";
+            // Call PHP Backend
+            // Point to current domain (PHP files are next to index.html)
+            const backendUrl = ""; // Relative path
 
             fetch(backendUrl + endpoint, {
                 method: 'POST',
@@ -1095,42 +1095,56 @@ public class DBConnect {
         ];
 
         // Dashboard Logic
+        // Navigation Logic
+        function showCurriculum() {
+            hideAllSections();
+            document.getElementById('curriculum').classList.remove('hidden');
+            document.getElementById('start').classList.remove('hidden');
+            setActiveNav('nav-btn-curriculum');
+        }
+
         function showDashboard() {
-            document.getElementById('curriculum').classList.add('hidden');
+            hideAllSections();
             document.getElementById('staff-dashboard').classList.remove('hidden');
-            document.getElementById('resources').classList.add('hidden');
-            document.getElementById('assignments-page').classList.add('hidden');
-            document.getElementById('start').classList.add('hidden');
             renderStudentList();
             setActiveNav('nav-btn-students');
         }
 
-        function showCurriculum() {
-            document.getElementById('curriculum').classList.remove('hidden');
-            document.getElementById('staff-dashboard').classList.add('hidden');
-            document.getElementById('resources').classList.add('hidden');
-            document.getElementById('assignments-page').classList.add('hidden');
-            document.getElementById('start').classList.remove('hidden');
-            setActiveNav('curriculum');
-        }
-
         function showResources() {
-            document.getElementById('curriculum').classList.add('hidden');
-            document.getElementById('staff-dashboard').classList.add('hidden');
+            hideAllSections();
             document.getElementById('resources').classList.remove('hidden');
-            document.getElementById('assignments-page').classList.add('hidden');
-            document.getElementById('start').classList.add('hidden');
             setActiveNav('nav-btn-resources');
         }
 
         function showAssignments() {
-            document.getElementById('curriculum').classList.add('hidden');
-            document.getElementById('staff-dashboard').classList.add('hidden');
-            document.getElementById('resources').classList.add('hidden');
-            document.getElementById('start').classList.add('hidden');
+            hideAllSections();
             document.getElementById('assignments-page').classList.remove('hidden');
             setActiveNav('nav-btn-assignments');
             renderAssignmentList();
+        }
+
+        function hideAllSections() {
+            document.getElementById('start').classList.add('hidden');
+            document.getElementById('curriculum').classList.add('hidden');
+            document.getElementById('staff-dashboard').classList.add('hidden');
+            document.getElementById('resources').classList.add('hidden');
+            document.getElementById('assignments-page').classList.add('hidden');
+        }
+
+        function setActiveNav(activeId) {
+            const navIds = ['nav-btn-curriculum', 'nav-btn-students', 'nav-btn-resources', 'nav-btn-assignments'];
+            navIds.forEach(id => {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+
+                if (id === activeId) {
+                    btn.classList.add('text-primary-600', 'font-bold');
+                    btn.classList.remove('text-slate-500');
+                } else {
+                    btn.classList.remove('text-primary-600', 'font-bold');
+                    btn.classList.add('text-slate-500');
+                }
+            });
         }
 
         let currentAssignmentIndex = null;
@@ -1195,11 +1209,7 @@ public class DBConnect {
             }
         }
 
-        function setActiveNav(id) {
-            // Helper to style active nav link if we wanted to add active state styles
-            // For now just ensuring functionality
-        }
-
+        // Student List Logic
         function renderStudentList() {
             const tbody = document.getElementById('student-list-body');
             tbody.innerHTML = students.map(s => `
@@ -1392,19 +1402,82 @@ public class DBConnect {
                             <svg class="w-5 h-5 text-slate-300 group-hover:text-primary-500" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
-                                </path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                             </svg>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
-
         // Call initial render
         renderSessionList();
+
+        async function handleChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add User Message
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML += `<div class="chat-bubble user">${message}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Add Loading Bubble
+            const loadingId = 'loading-' + Date.now();
+            chatBox.innerHTML += `<div id="${loadingId}" class="chat-bubble bot">...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Google Gemini API Configuration
+            const API_KEY = "AIzaSyADxO4ODFLSuFtJAupW7ASN_m4nbS9K4Gw";
+            // Using gemini-1.5-flash which is faster and more stable for free tier
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `You are a helpful and friendly Java Programming Tutor. 
+                                Keep answers concise (under 3 sentences if possible) unless asked for code.
+                                User Question: ${message}`
+                            }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorDate = await response.json();
+                    throw new Error(errorDate.error.message || `API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Parse Gemini Response
+                let reply = "Sorry, I couldn't understand that.";
+                if (data.candidates && data.candidates[0].content) {
+                    reply = data.candidates[0].content.parts[0].text;
+
+                    // Simple markdown formatter
+                    reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                        .replace(/`([^`]+)`/g, '<code class="bg-gray-200 dark:bg-slate-700 rounded px-1 text-red-500">$1</code>') // Inline Code
+                        .replace(/\n/g, '<br>'); // Newlines
+                }
+
+                document.getElementById(loadingId).remove();
+                chatBox.innerHTML += `<div class="chat-bubble bot">${reply}</div>`;
+            } catch (error) {
+                console.error(error);
+                document.getElementById(loadingId).remove();
+                // Show actual error to help debugging
+                chatBox.innerHTML += `<div class="chat-bubble bot text-red-500">Error: ${error.message}</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
         let isChatOpen = false;
         function toggleChat() {
             const window = document.getElementById('chat-window');
@@ -1420,17 +1493,8 @@ public class DBConnect {
                     window.classList.add('scale-100', 'opacity-100');
                 }, 10);
             }
-
-            function getBotResponse(input) {
-                input = input.toLowerCase();
-                if (input.includes('hello') || input.includes('hi')) return "Hello student! Ready to learn Java?";
-                if (input.includes('variable')) return "Variables are containers for storing data values. In Java, we have int, String, double, etc.";
-                if (input.includes('loop')) return "Loops help you execute a block of code repeatedly. Java has for, while, and do-while loops.";
-                if (input.includes('class') || input.includes('object')) return "A Class is a blueprint, and an Object is an instance of that class. Think of Class as 'Car Blueprint' and Object as 'The actual red Ferrari'.";
-                if (input.includes('error') || input.includes('bug')) return "Debug tip: Check your semicolons ; and matching brackets {} first!";
-                if (input.includes('thank')) return "You're welcome! Happy coding!";
-                return "That's a great question about Java! I recommend checking the current video session for more context, or try rephrasing.";
-            }
+            isChatOpen = !isChatOpen;
+        }
     </script>
 </body>
 
